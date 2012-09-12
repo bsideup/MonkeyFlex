@@ -9,785 +9,820 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package mx.states 
-{
-import flash.events.Event;
-import mx.core.ContainerCreationPolicy;
-import mx.core.IDeferredContentOwner;
-import mx.core.ITransientDeferredInstance;
-import mx.core.UIComponent;
-
-[DefaultProperty("itemsFactory")]
-
-/**
- *  Documentation is not currently available.
- *  
- *  @langversion 3.0
- *  @playerversion Flash 10
- *  @playerversion AIR 1.5
- *  @productversion Flex 4
- */
-public class AddItems extends OverrideBase 
+package mx.states
 {
 
-    //--------------------------------------------------------------------------
-    //
-    //  Class Constants
-    //
-    //--------------------------------------------------------------------------
+	import flash.events.Event;
+	import flash.events.IEventDispatcher;
 
-    /**
-     *  Documentation is not currently available.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public static const FIRST:String = "first";
+	import mx.core.ContainerCreationPolicy;
+	import mx.core.ITransientDeferredInstance;
 
-    /**
-     *  Documentation is not currently available.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public static const LAST:String = "last";
+	[DefaultProperty("itemsFactory")]
 
-    /**
-     *  Documentation is not currently available.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public static const BEFORE:String = "before";
+	/**
+	 *  Documentation is not currently available.
+	 *
+	 *  @langversion 3.0
+	 *  @playerversion Flash 10
+	 *  @playerversion AIR 1.5
+	 *  @productversion Flex 4
+	 */
+	public class AddItems extends OverrideBase
+	{
 
-    /**
-     *  Documentation is not currently available.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public static const AFTER:String = "after";
+		//--------------------------------------------------------------------------
+		//
+		//  Class Constants
+		//
+		//--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //
-    //  Constructor
-    //
-    //--------------------------------------------------------------------------
+		/**
+		 *  Documentation is not currently available.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public static const FIRST : String = "first";
 
-    /**
-     *  Constructor.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function AddItems()
-    {
-        super();
-    }
+		/**
+		 *  Documentation is not currently available.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public static const LAST : String = "last";
 
-    //--------------------------------------------------------------------------
-    //
-    //  Variables
-    //
-    //--------------------------------------------------------------------------
+		/**
+		 *  Documentation is not currently available.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public static const BEFORE : String = "before";
 
-    /**
-     *  @private
-     */
-    private var added:Boolean = false;
+		/**
+		 *  Documentation is not currently available.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public static const AFTER : String = "after";
 
-    /**
-     *  @private
-     */
-    private var startIndex:int;
-    
-    /**
-     *  @private
-     */
-    private var numAdded:int;
+		//--------------------------------------------------------------------------
+		//
+		//  Constructor
+		//
+		//--------------------------------------------------------------------------
 
-    /**
-     *  @private
-     */
-    private var instanceCreated:Boolean = false;
-    
+		/**
+		 *  Constructor.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function AddItems()
+		{
+			super();
+		}
 
-    //--------------------------------------------------------------------------
-    //
-    //  Properties
-    //
-    //--------------------------------------------------------------------------
+		//--------------------------------------------------------------------------
+		//
+		//  Variables
+		//
+		//--------------------------------------------------------------------------
 
-    //------------------------------------
-    //  creationPolicy
-    //------------------------------------
-    
-    /**
-     *  @private
-     *  Storage for the creationPolicy property.
-     */
-    private var _creationPolicy:String = ContainerCreationPolicy.AUTO;
+		/**
+		 *  @private
+		 */
+		private var added : Boolean = false;
 
-    [Inspectable(category="General")]
+		/**
+		 *  @private
+		 */
+		private var startIndex : int;
 
-    /**
-     *  The creation policy for the items.
-     *  This property determines when the <code>itemsFactory</code> will create 
-     *  the instance of the items.
-     *  Flex uses this property only if you specify an <code>itemsFactory</code> property.
-     *  The following values are valid:
-     * 
-     *  <p></p>
-     * <table class="innertable">
-     *     <tr><th>Value</th><th>Meaning</th></tr>
-     *     <tr><td><code>auto</code></td><td>(default)Create the instance the 
-     *         first time it is needed.</td></tr>
-     *     <tr><td><code>all</code></td><td>Create the instance when the 
-     *         application started up.</td></tr>
-     *     <tr><td><code>none</code></td><td>Do not automatically create the instance. 
-     *         You must call the <code>createInstance()</code> method to create 
-     *         the instance.</td></tr>
-     * </table>
-     *
-     *  @default "auto"
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function get creationPolicy():String
-    {
-        return _creationPolicy;
-    }
+		/**
+		 *  @private
+		 */
+		private var numAdded : int;
 
-    /**
-     *  @private
-     */
-    public function set creationPolicy(value:String):void
-    {
-        _creationPolicy = value;
+		/**
+		 *  @private
+		 */
+		private var instanceCreated : Boolean = false;
 
-        if (_creationPolicy == ContainerCreationPolicy.ALL)
-            createInstance();
-    }
 
-    //------------------------------------
-    //  destructionPolicy
-    //------------------------------------
-    
-    /**
-     *  @private
-     *  Storage for the destructionPolicy property.
-     */
-    private var _destructionPolicy:String = "never";
+		//--------------------------------------------------------------------------
+		//
+		//  Properties
+		//
+		//--------------------------------------------------------------------------
 
-    [Inspectable(category="General")]
+		//------------------------------------
+		//  creationPolicy
+		//------------------------------------
 
-    /**
-     *  The destruction policy for the items.
-     *  This property determines when the <code>itemsFactory</code> will destroy
-     *  the deferred instances it manages.  By default once instantiated, all
-     *  instances are cached (destruction policy of 'never').
-     *  Flex uses this property only if you specify an <code>itemsFactory</code> property.
-     *  The following values are valid:
-     * 
-     *  <p></p>
-     * <table class="innertable">
-     *     <tr><th>Value</th><th>Meaning</th></tr>
-     *     <tr><td><code>never</code></td><td>(default)Once created never destroy
-     *        the instance.</td></tr>
-     *     <tr><td><code>auto</code></td><td>Destroy the instance when the override
-     *         no longer applies.</td></tr>
-     * </table>
-     *
-     *  @default "never"
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function get destructionPolicy():String
-    {
-        return _destructionPolicy;
-    }
+		/**
+		 *  @private
+		 *  Storage for the creationPolicy property.
+		 */
+		private var _creationPolicy : String = ContainerCreationPolicy.AUTO;
 
-    /**
-     *  @private
-     */
-    public function set destructionPolicy(value:String):void
-    {
-        _destructionPolicy = value;
-    }
-    
-    //------------------------------------
-    //  destination
-    //------------------------------------
+		[Inspectable(category="General")]
 
-    /**
-     *  The object relative to which the child is added. This property is used
-     *  in conjunction with the <code>position</code> property. 
-     *  This property is optional; if
-     *  you omit it, Flex uses the immediate parent of the <code>State</code>
-     *  object, that is, the component that has the <code>states</code>
-     *  property, or <code>&lt;mx:states&gt;</code>tag that specifies the State
-     *  object.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var destination:Object;
-    
-    //------------------------------------
-    //  items
-    //------------------------------------
+		/**
+		 *  The creation policy for the items.
+		 *  This property determines when the <code>itemsFactory</code> will create
+		 *  the instance of the items.
+		 *  Flex uses this property only if you specify an <code>itemsFactory</code> property.
+		 *  The following values are valid:
+		 *
+		 *  <p></p>
+		 * <table class="innertable">
+		 *     <tr><th>Value</th><th>Meaning</th></tr>
+		 *     <tr><td><code>auto</code></td><td>(default)Create the instance the
+		 *         first time it is needed.</td></tr>
+		 *     <tr><td><code>all</code></td><td>Create the instance when the
+		 *         application started up.</td></tr>
+		 *     <tr><td><code>none</code></td><td>Do not automatically create the instance.
+		 *         You must call the <code>createInstance()</code> method to create
+		 *         the instance.</td></tr>
+		 * </table>
+		 *
+		 *  @default "auto"
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function get creationPolicy() : String
+		{
+			return _creationPolicy;
+		}
 
-    /**
-     *  @private
-     *  Storage for the items property
-     */
-    private var _items:*;
+		/**
+		 *  @private
+		 */
+		public function set creationPolicy( value : String ) : void
+		{
+			_creationPolicy = value;
 
-    [Inspectable(category="General")]
+			if ( _creationPolicy == ContainerCreationPolicy.ALL )
+			{
+				createInstance();
+			}
+		}
 
-    /**
-     *
-     *  The items to be added.
-     *  If you set this property, the items are created at app startup.
-     *  Setting this property is equivalent to setting a <code>itemsFactory</code>
-     *  property with a <code>creationPolicy</code> of <code>"all"</code>.
-     *
-     *  <p>Do not set this property if you set the <code>itemsFactory</code>
-     *  property.</p>
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function get items():*
-    {
-        if (!_items && creationPolicy != ContainerCreationPolicy.NONE)
-            createInstance();
+		//------------------------------------
+		//  destructionPolicy
+		//------------------------------------
 
-        return _items;
-    }
+		/**
+		 *  @private
+		 *  Storage for the destructionPolicy property.
+		 */
+		private var _destructionPolicy : String = "never";
 
-    /**
-     *  @private
-     */
-    public function set items(value:*):void
-    {
-        _items = value;
-    }
+		[Inspectable(category="General")]
 
-    //------------------------------------
-    //  itemsFactory
-    //------------------------------------
-    
-    /**
-     *  @private
-     *  Storage for the itemsFactory property.
-     */
-    private var _itemsFactory:ITransientDeferredInstance;
+		/**
+		 *  The destruction policy for the items.
+		 *  This property determines when the <code>itemsFactory</code> will destroy
+		 *  the deferred instances it manages.  By default once instantiated, all
+		 *  instances are cached (destruction policy of 'never').
+		 *  Flex uses this property only if you specify an <code>itemsFactory</code> property.
+		 *  The following values are valid:
+		 *
+		 *  <p></p>
+		 * <table class="innertable">
+		 *     <tr><th>Value</th><th>Meaning</th></tr>
+		 *     <tr><td><code>never</code></td><td>(default)Once created never destroy
+		 *        the instance.</td></tr>
+		 *     <tr><td><code>auto</code></td><td>Destroy the instance when the override
+		 *         no longer applies.</td></tr>
+		 * </table>
+		 *
+		 *  @default "never"
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function get destructionPolicy() : String
+		{
+			return _destructionPolicy;
+		}
 
-    [Inspectable(category="General")]
+		/**
+		 *  @private
+		 */
+		public function set destructionPolicy( value : String ) : void
+		{
+			_destructionPolicy = value;
+		}
 
-    /**
-     *
-     * The factory that creates the items. 
-     *
-     *  <p>If you set this property, the items are instantiated at the time
-     *  determined by the <code>creationPolicy</code> property.</p>
-     *  
-     *  <p>Do not set this property if you set the <code>items</code>
-     *  property.
-     *  This propety is the <code>AddItems</code> class default property.
-     *  Setting this property with a <code>creationPolicy</code> of "all"
-     *  is equivalent to setting a <code>items</code> property.</p>
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function get itemsFactory():ITransientDeferredInstance
-    {
-        return _itemsFactory;
-    }
+		//------------------------------------
+		//  destination
+		//------------------------------------
 
-    /**
-     *  @private
-     */
-    public function set itemsFactory(value:ITransientDeferredInstance):void
-    {
-        _itemsFactory = value;
+		/**
+		 *  The object relative to which the child is added. This property is used
+		 *  in conjunction with the <code>position</code> property.
+		 *  This property is optional; if
+		 *  you omit it, Flex uses the immediate parent of the <code>State</code>
+		 *  object, that is, the component that has the <code>states</code>
+		 *  property, or <code>&lt;mx:states&gt;</code>tag that specifies the State
+		 *  object.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var destination : Object;
 
-        if (creationPolicy == ContainerCreationPolicy.ALL)
-            createInstance();
-    }
+		//------------------------------------
+		//  items
+		//------------------------------------
 
-    //------------------------------------
-    //  position
-    //------------------------------------
+		/**
+		 *  @private
+		 *  Storage for the items property
+		 */
+		private var _items : *;
 
-    [Inspectable(category="General")]
+		[Inspectable(category="General")]
 
-    /**
-     *  The position of the child in the display list, relative to the
-     *  object specified by the <code>relativeTo</code> property.
-     *
-     *  @default AddItems.LAST
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var position:String = AddItems.LAST;
+		/**
+		 *
+		 *  The items to be added.
+		 *  If you set this property, the items are created at app startup.
+		 *  Setting this property is equivalent to setting a <code>itemsFactory</code>
+		 *  property with a <code>creationPolicy</code> of <code>"all"</code>.
+		 *
+		 *  <p>Do not set this property if you set the <code>itemsFactory</code>
+		 *  property.</p>
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function get items() : *
+		{
+			if ( !_items && creationPolicy != ContainerCreationPolicy.NONE )
+			{
+				createInstance();
+			}
 
-    //------------------------------------
-    //  isStyle
-    //------------------------------------
+			return _items;
+		}
 
-    [Inspectable(category="General")]
+		/**
+		 *  @private
+		 */
+		public function set items( value : * ) : void
+		{
+			_items = value;
+		}
 
-    /**
-     *  Denotes whether or not the collection represented by the 
-     *  target property is a style.
-     *
-     *  @default false
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var isStyle:Boolean = false;
-    
-    //------------------------------------
-    //  isArray
-    //------------------------------------
+		//------------------------------------
+		//  itemsFactory
+		//------------------------------------
 
-    [Inspectable(category="General")]
+		/**
+		 *  @private
+		 *  Storage for the itemsFactory property.
+		 */
+		private var _itemsFactory : ITransientDeferredInstance;
 
-    /**
-     *  Denotes whether or not the collection represented by the 
-     *  target property is to be treated as a single array instance
-     *  instead of a collection of items (the default).
-     *
-     *  @default false
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var isArray:Boolean = false;
+		[Inspectable(category="General")]
 
-    //------------------------------------
-    //  vectorClass
-    //------------------------------------
+		/**
+		 *
+		 * The factory that creates the items.
+		 *
+		 *  <p>If you set this property, the items are instantiated at the time
+		 *  determined by the <code>creationPolicy</code> property.</p>
+		 *
+		 *  <p>Do not set this property if you set the <code>items</code>
+		 *  property.
+		 *  This propety is the <code>AddItems</code> class default property.
+		 *  Setting this property with a <code>creationPolicy</code> of "all"
+		 *  is equivalent to setting a <code>items</code> property.</p>
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function get itemsFactory() : ITransientDeferredInstance
+		{
+			return _itemsFactory;
+		}
 
-    [Inspectable(category="General")]
+		/**
+		 *  @private
+		 */
+		public function set itemsFactory( value : ITransientDeferredInstance ) : void
+		{
+			_itemsFactory = value;
 
-    /**
-     *  When the collection represented by the target property is a
-     *  Vector, vectorClass is the type of the target.  It is used to
-     *  initialize the target property.
-     *
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4.5
-     */
-    public var vectorClass:Class;
-    
-    //------------------------------------
-    //  propertyName
-    //------------------------------------
-    
-    [Inspectable(category="General")]
+			if ( creationPolicy == ContainerCreationPolicy.ALL )
+			{
+				createInstance();
+			}
+		}
 
-    /**
-     *  The name of the Array property that is being modified. If the <code>destination</code>
-     *  property is a Group or Container, this property is optional. If not defined, the
-     *  items will be added as children of the Group/Container.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var propertyName:String;
-    
-    //------------------------------------
-    //  relativeTo
-    //------------------------------------
-    
-    [Inspectable(category="General")]
+		//------------------------------------
+		//  position
+		//------------------------------------
 
-    /**
-     *  The object relative to which the child is added. This property is only
-     *  used when the <code>position</code> property is <code>AddItems.BEFORE</code>
-     *  or <code>AddItems.AFTER</code>. 
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public var relativeTo:Object;
+		[Inspectable(category="General")]
 
-    //--------------------------------------------------------------------------
-    //
-    //  Methods
-    //
-    //--------------------------------------------------------------------------
+		/**
+		 *  The position of the child in the display list, relative to the
+		 *  object specified by the <code>relativeTo</code> property.
+		 *
+		 *  @default AddItems.LAST
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var position : String = AddItems.LAST;
 
-    /**
-     *  Creates the items instance from the factory.
-     *  You must use this method only if you specify a <code>targetItems</code>
-     *  property and a <code>creationPolicy</code> value of <code>"none"</code>.
-     *  Flex automatically calls this method if the <code>creationPolicy</code>
-     *  property value is <code>"auto"</code> or <code>"all"</code>.
-     *  If you call this method multiple times, the items instance is
-     *  created only on the first call.
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    public function createInstance():void
-    {
-        if (!instanceCreated && !_items && itemsFactory)
-        {
-            instanceCreated = true;
-            items = itemsFactory.getInstance();
-        }
-    }
- 
-    /**
-     *  @inheritDoc
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    override public function initialize():void
-    {
-        if (creationPolicy == ContainerCreationPolicy.AUTO)
-            createInstance();
-    }
+		//------------------------------------
+		//  isStyle
+		//------------------------------------
 
-    /**
-     *  @inheritDoc
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    override public function apply(parent:UIComponent):void
-    {
-        var dest:* = getOverrideContext(destination, parent);
-        var localItems:Array;
-        
-        added = false;
-        parentContext = parent;
-        
-        // Early exit if destination is null.
-        if (!dest)
-        {
-            if (destination != null && !applied)
-            {
-                // Our destination context is unavailable so we attempt to register
-                // a listener on our parent document to detect when/if it becomes
-                // valid.
-                addContextListener(destination);
-            }
-            applied = true;
-            return;
-        }
+		[Inspectable(category="General")]
 
-        applied = true;
-        destination = dest;
-        
-        // Coerce to array if not already an array, or we wish
-        // to treat the array as *the* item to add (isArray == true)
-        if (items is Array && !isArray)
-            localItems = items;
-        else
-            localItems = [items];
-        
-        switch (position)
-        {
-            case FIRST:
-                startIndex = 0;
-                break;
-            case LAST:
-                startIndex = -1;
-                break;
-            case BEFORE:
-                startIndex = getRelatedIndex(parent, dest);
-                break;
-            case AFTER:
-                startIndex = getRelatedIndex(parent, dest) + 1;
-                break;
-        }    
-        
-        if (vectorClass)
-        {
-            addItemsToVector(dest, propertyName, localItems);
-        }
-        else
-        {
-            addItemsToArray(dest, propertyName, localItems);
-        }
-        
-        added = true;
-        numAdded = localItems.length;
-    }
+		/**
+		 *  Denotes whether or not the collection represented by the
+		 *  target property is a style.
+		 *
+		 *  @default false
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var isStyle : Boolean = false;
 
-    /**
-     *  @inheritDoc
-     *  
-     *  @langversion 3.0
-     *  @playerversion Flash 10
-     *  @playerversion AIR 1.5
-     *  @productversion Flex 4
-     */
-    override public function remove(parent:UIComponent):void
-    {
-        var dest:* = getOverrideContext(destination, parent);
-        var localItems:Array;
-        var i:int;
-        
-        if (!added)
-        {
-            if (dest == null)
-            {
-                // It seems our override is no longer active, but we were never
-                // able to successfully apply ourselves, so remove our context
-                // listener if applicable.
-                removeContextListener();
-            }
-            else if (_waitingForDeferredContent)
-            {
-                // Or we were waiting around for deferred content of our target
-                // to be created and it never happened, so we'll stop listening
-                // for now.
-                removeCreationCompleteListener();
-            }
-            applied = false;
-            parentContext = null;
-            return;
-        }
-                    
-        // Coerce to array if not already an array, or we wish
-        // to treat the array as *the* item to add (isArray == true)
-        if (items is Array && !isArray)
-            localItems = items;
-        else
-            localItems = [items];
-             
-        if (vectorClass)
-        {
-            var tempVector:Object = isStyle ? dest.getStyle(propertyName) : dest[propertyName];
-                
-            if (numAdded < tempVector.length) 
-            {
-                tempVector.splice(startIndex, numAdded);
-                assign(dest, propertyName, tempVector);
-            } 
-            else
-            {
-                // For destinations like ArrayCollection we don't want to 
-                // affect the vector in-place in some cases, as ListCollectionView a
-                // attempts to compare the "before" and "after" state of the vector
-                assign(dest, propertyName, new vectorClass());
-            }      
-        }
-        else
-        {
-            var tempArray:Array = isStyle ? dest.getStyle(propertyName) : dest[propertyName];
-                
-            if (numAdded < tempArray.length) 
-            {
-                tempArray.splice(startIndex, numAdded);
-                assign(dest, propertyName, tempArray);
-            } 
-            else
-            {
-                // For destinations like ArrayCollection we don't want to 
-                // affect the array in-place in some cases, as ListCollectionView a
-                // attempts to compare the "before" and "after" state of the array
-                assign(dest, propertyName, new Array());
-            }      
-        }
-        
-        if (destructionPolicy == "auto")
-            destroyInstance();
-            
-        // Clear our flags and override context.
-        added = false;
-        applied = false;
-        parentContext = null;
-    }
-       
-    /**
-     *  @private
-     */
-    private function destroyInstance():void
-    {
-        if (_itemsFactory)
-        {
-            instanceCreated = false;
-            items = null;
-            _itemsFactory.reset();
-        }
-    }
-    
-    /**
-     *  @private
-     */
-    protected function getObjectIndex(object:Object, dest:Object):int
-    {
-        try
-        {
-            if (propertyName != null && isStyle)
-                return dest.getStyle(propertyName).indexOf(object);
-            
-            return dest[propertyName].indexOf(object);
-        }
-        catch(e:Error) {}
-        return -1;
-    }
-  
-    /**
-     * @private 
-     * Find the index of the relative object. If relativeTo is an array,
-     * search for the first valid item's index.  This is used for stateful
-     * documents where one or more relative siblings of the newly inserted
-     * item may not be realized within the current state.
-     */
-    protected function getRelatedIndex(parent:UIComponent, dest:Object):int
-    {
-        var index:int = -1;
-        if (relativeTo is Array)
-        {
-            for (var i:int = 0; ((i < relativeTo.length) && index < 0); i++)
-            { 
-                var relativeObject:Object = getOverrideContext(relativeTo[i], parent);
-                index = getObjectIndex(relativeObject, dest);
-            }
-        }
-        else
-        {
-            relativeObject = getOverrideContext(relativeTo, parent);
-            index = getObjectIndex(relativeObject, dest);
-        }
-        return index;
-    }
-    
-    private var _waitingForDeferredContent:Boolean = false;
-    
-    /**
-     *  @private
-     */
-    protected function addItemsToArray(dest:Object, propertyName:String, items:Array):void
-    {
-        var tempArray:Array = isStyle ? dest.getStyle(propertyName) : dest[propertyName];
-        
-        if (!tempArray)
-            tempArray = new Array();
-        
-        if (startIndex == -1)
-            startIndex = tempArray.length;
-        
-        for (var i:int  = 0; i < items.length; i++) 
-            tempArray.splice(startIndex + i, 0, items[i]);
-        
-        assign(dest, propertyName, tempArray);
-    }
+		//------------------------------------
+		//  isArray
+		//------------------------------------
 
-    /**
-     *  @private
-     */
-    protected function addItemsToVector(dest:Object, propertyName:String, items:Array):void
-    {
-        var tempVector:Object = isStyle ? dest.getStyle(propertyName) : dest[propertyName];
-        
-        if (!tempVector)
-            tempVector = new vectorClass();
-        
-        if (startIndex == -1)
-            startIndex = tempVector.length;
-        
-        for (var i:int  = 0; i < items.length; i++) 
-            tempVector.splice(startIndex + i, 0, items[i]);
-        
-        assign(dest, propertyName, tempVector);
-    }
-    
-    /**
-     *  @private
-     */
-    protected function assign(dest:Object, propertyName:String, value:Object):void
-    {
-        if (isStyle)
-        {
-            dest.setStyle(propertyName, value);
-            dest.styleChanged(propertyName);
-            dest.notifyStyleChangeInChildren(propertyName, true);
-        }
-        else
-        {
-            dest[propertyName] = value;
-        }
-    }
+		[Inspectable(category="General")]
 
-    /**
-     *  @private
-     *  We've detected that our IDeferredContentOwnder target has created its
-     *  content, so it's safe to apply our override content now.
-     */
-    private function onDestinationContentCreated(e:Event):void
-    {
-        if (parentContext)
-        {
-            removeCreationCompleteListener();
-            apply(parentContext);
-        }   
-    }
-    
-    /**
-     *  @private
-     *  Remove our contentCreationComplete listener.
-     */
-    private function removeCreationCompleteListener():void
-    {
-        if (parentContext)
-        {
-            parentContext.removeEventListener("contentCreationComplete", onDestinationContentCreated);
-            _waitingForDeferredContent = false;
-        }   
-    }
-}
+		/**
+		 *  Denotes whether or not the collection represented by the
+		 *  target property is to be treated as a single array instance
+		 *  instead of a collection of items (the default).
+		 *
+		 *  @default false
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var isArray : Boolean = false;
+
+		//------------------------------------
+		//  vectorClass
+		//------------------------------------
+
+		[Inspectable(category="General")]
+
+		/**
+		 *  When the collection represented by the target property is a
+		 *  Vector, vectorClass is the type of the target.  It is used to
+		 *  initialize the target property.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4.5
+		 */
+		public var vectorClass : Class;
+
+		//------------------------------------
+		//  propertyName
+		//------------------------------------
+
+		[Inspectable(category="General")]
+
+		/**
+		 *  The name of the Array property that is being modified. If the <code>destination</code>
+		 *  property is a Group or Container, this property is optional. If not defined, the
+		 *  items will be added as children of the Group/Container.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var propertyName : String;
+
+		//------------------------------------
+		//  relativeTo
+		//------------------------------------
+
+		[Inspectable(category="General")]
+
+		/**
+		 *  The object relative to which the child is added. This property is only
+		 *  used when the <code>position</code> property is <code>AddItems.BEFORE</code>
+		 *  or <code>AddItems.AFTER</code>.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public var relativeTo : Object;
+
+		//--------------------------------------------------------------------------
+		//
+		//  Methods
+		//
+		//--------------------------------------------------------------------------
+
+		/**
+		 *  Creates the items instance from the factory.
+		 *  You must use this method only if you specify a <code>targetItems</code>
+		 *  property and a <code>creationPolicy</code> value of <code>"none"</code>.
+		 *  Flex automatically calls this method if the <code>creationPolicy</code>
+		 *  property value is <code>"auto"</code> or <code>"all"</code>.
+		 *  If you call this method multiple times, the items instance is
+		 *  created only on the first call.
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		public function createInstance() : void
+		{
+			if ( !instanceCreated && !_items && itemsFactory )
+			{
+				instanceCreated = true;
+				items = itemsFactory.getInstance();
+			}
+		}
+
+		/**
+		 *  @inheritDoc
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		override public function initialize() : void
+		{
+			if ( creationPolicy == ContainerCreationPolicy.AUTO )
+			{
+				createInstance();
+			}
+		}
+
+		/**
+		 *  @inheritDoc
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		override public function apply( parent : IEventDispatcher ) : void
+		{
+			var dest : * = getOverrideContext( destination, parent );
+			var localItems : Array;
+
+			added = false;
+			parentContext = parent;
+
+			// Early exit if destination is null.
+			if ( !dest )
+			{
+				if ( destination != null && !applied )
+				{
+					// Our destination context is unavailable so we attempt to register
+					// a listener on our parent document to detect when/if it becomes
+					// valid.
+					addContextListener( destination );
+				}
+				applied = true;
+				return;
+			}
+
+			applied = true;
+			destination = dest;
+
+			// Coerce to array if not already an array, or we wish
+			// to treat the array as *the* item to add (isArray == true)
+			if ( items is Array && !isArray )
+			{
+				localItems = items;
+			}
+			else
+			{
+				localItems = [items];
+			}
+
+			switch ( position )
+			{
+				case FIRST:
+					startIndex = 0;
+					break;
+				case LAST:
+					startIndex = -1;
+					break;
+				case BEFORE:
+					startIndex = getRelatedIndex( parent, dest );
+					break;
+				case AFTER:
+					startIndex = getRelatedIndex( parent, dest ) + 1;
+					break;
+			}
+
+			if ( vectorClass )
+			{
+				addItemsToVector( dest, propertyName, localItems );
+			}
+			else
+			{
+				addItemsToArray( dest, propertyName, localItems );
+			}
+
+			added = true;
+			numAdded = localItems.length;
+		}
+
+		/**
+		 *  @inheritDoc
+		 *
+		 *  @langversion 3.0
+		 *  @playerversion Flash 10
+		 *  @playerversion AIR 1.5
+		 *  @productversion Flex 4
+		 */
+		override public function remove( parent : IEventDispatcher ) : void
+		{
+			var dest : * = getOverrideContext( destination, parent );
+			var localItems : Array;
+			var i : int;
+
+			if ( !added )
+			{
+				if ( dest == null )
+				{
+					// It seems our override is no longer active, but we were never
+					// able to successfully apply ourselves, so remove our context
+					// listener if applicable.
+					removeContextListener();
+				}
+				else if ( _waitingForDeferredContent )
+				{
+					// Or we were waiting around for deferred content of our target
+					// to be created and it never happened, so we'll stop listening
+					// for now.
+					removeCreationCompleteListener();
+				}
+				applied = false;
+				parentContext = null;
+				return;
+			}
+
+			// Coerce to array if not already an array, or we wish
+			// to treat the array as *the* item to add (isArray == true)
+			if ( items is Array && !isArray )
+			{
+				localItems = items;
+			}
+			else
+			{
+				localItems = [items];
+			}
+
+			if ( vectorClass )
+			{
+				var tempVector : Object = isStyle ? dest.getStyle( propertyName ) : dest[propertyName];
+
+				if ( numAdded < tempVector.length )
+				{
+					tempVector.splice( startIndex, numAdded );
+					assign( dest, propertyName, tempVector );
+				}
+				else
+				{
+					// For destinations like ArrayCollection we don't want to
+					// affect the vector in-place in some cases, as ListCollectionView a
+					// attempts to compare the "before" and "after" state of the vector
+					assign( dest, propertyName, new vectorClass() );
+				}
+			}
+			else
+			{
+				var tempArray : Array = isStyle ? dest.getStyle( propertyName ) : dest[propertyName];
+
+				if ( numAdded < tempArray.length )
+				{
+					tempArray.splice( startIndex, numAdded );
+					assign( dest, propertyName, tempArray );
+				}
+				else
+				{
+					// For destinations like ArrayCollection we don't want to
+					// affect the array in-place in some cases, as ListCollectionView a
+					// attempts to compare the "before" and "after" state of the array
+					assign( dest, propertyName, new Array() );
+				}
+			}
+
+			if ( destructionPolicy == "auto" )
+			{
+				destroyInstance();
+			}
+
+			// Clear our flags and override context.
+			added = false;
+			applied = false;
+			parentContext = null;
+		}
+
+		/**
+		 *  @private
+		 */
+		private function destroyInstance() : void
+		{
+			if ( _itemsFactory )
+			{
+				instanceCreated = false;
+				items = null;
+				_itemsFactory.reset();
+			}
+		}
+
+		/**
+		 *  @private
+		 */
+		protected function getObjectIndex( object : Object, dest : Object ) : int
+		{
+			try
+			{
+				if ( propertyName != null && isStyle )
+				{
+					return dest.getStyle( propertyName ).indexOf( object );
+				}
+
+				return dest[propertyName].indexOf( object );
+			}
+			catch ( e : Error )
+			{
+			}
+			return -1;
+		}
+
+		/**
+		 * @private
+		 * Find the index of the relative object. If relativeTo is an array,
+		 * search for the first valid item's index.  This is used for stateful
+		 * documents where one or more relative siblings of the newly inserted
+		 * item may not be realized within the current state.
+		 */
+		protected function getRelatedIndex( parent : IEventDispatcher, dest : Object ) : int
+		{
+			var index : int = -1;
+			if ( relativeTo is Array )
+			{
+				for ( var i : int = 0; ((i < relativeTo.length) && index < 0); i++ )
+				{
+					var relativeObject : Object = getOverrideContext( relativeTo[i], parent );
+					index = getObjectIndex( relativeObject, dest );
+				}
+			}
+			else
+			{
+				relativeObject = getOverrideContext( relativeTo, parent );
+				index = getObjectIndex( relativeObject, dest );
+			}
+			return index;
+		}
+
+		private var _waitingForDeferredContent : Boolean = false;
+
+		/**
+		 *  @private
+		 */
+		protected function addItemsToArray( dest : Object, propertyName : String, items : Array ) : void
+		{
+			var tempArray : Array = isStyle ? dest.getStyle( propertyName ) : dest[propertyName];
+
+			if ( !tempArray )
+			{
+				tempArray = new Array();
+			}
+
+			if ( startIndex == -1 )
+			{
+				startIndex = tempArray.length;
+			}
+
+			for ( var i : int = 0; i < items.length; i++ )
+			{
+				tempArray.splice( startIndex + i, 0, items[i] );
+			}
+
+			assign( dest, propertyName, tempArray );
+		}
+
+		/**
+		 *  @private
+		 */
+		protected function addItemsToVector( dest : Object, propertyName : String, items : Array ) : void
+		{
+			var tempVector : Object = isStyle ? dest.getStyle( propertyName ) : dest[propertyName];
+
+			if ( !tempVector )
+			{
+				tempVector = new vectorClass();
+			}
+
+			if ( startIndex == -1 )
+			{
+				startIndex = tempVector.length;
+			}
+
+			for ( var i : int = 0; i < items.length; i++ )
+			{
+				tempVector.splice( startIndex + i, 0, items[i] );
+			}
+
+			assign( dest, propertyName, tempVector );
+		}
+
+		/**
+		 *  @private
+		 */
+		protected function assign( dest : Object, propertyName : String, value : Object ) : void
+		{
+			if ( isStyle )
+			{
+				dest.setStyle( propertyName, value );
+				dest.styleChanged( propertyName );
+				dest.notifyStyleChangeInChildren( propertyName, true );
+			}
+			else
+			{
+				dest[propertyName] = value;
+			}
+		}
+
+		/**
+		 *  @private
+		 *  We've detected that our IDeferredContentOwnder target has created its
+		 *  content, so it's safe to apply our override content now.
+		 */
+		private function onDestinationContentCreated( e : Event ) : void
+		{
+			if ( parentContext )
+			{
+				removeCreationCompleteListener();
+				apply( parentContext );
+			}
+		}
+
+		/**
+		 *  @private
+		 *  Remove our contentCreationComplete listener.
+		 */
+		private function removeCreationCompleteListener() : void
+		{
+			if ( parentContext )
+			{
+				parentContext.removeEventListener( "contentCreationComplete", onDestinationContentCreated );
+				_waitingForDeferredContent = false;
+			}
+		}
+	}
 
 }
