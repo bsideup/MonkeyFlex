@@ -7,7 +7,7 @@
 	<groupId>ru.trylogic</groupId>
 	<artifactId>monkey-flex</artifactId>
 	<packaging>swc</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<properties>
 		<flexmojos.version>4.2-beta</flexmojos.version>
@@ -16,7 +16,6 @@
 
 	<build>
 		<sourceDirectory>src/main/flex</sourceDirectory>
-		<testSourceDirectory>src/test/flex</testSourceDirectory>
 
 		<plugins>
 			<plugin>
@@ -63,7 +62,7 @@
 			<artifactId>flex-framework</artifactId>
 			<version>${flex.framework.version}</version>
 			<type>pom</type>
-			<scope>provided</scope>
+			<scope>external</scope>
 		</dependency>
 
 		<dependency>
@@ -72,10 +71,11 @@
 			<version>${flex.framework.version}</version>
 			<classifier>11.1</classifier>
 			<type>swc</type>
-			<scope>provided</scope>
+			<scope>external</scope>
 		</dependency>
 
 	</dependencies>
+
 	<repositories>
 		<repository>
 			<id>sonatype-repository</id>
